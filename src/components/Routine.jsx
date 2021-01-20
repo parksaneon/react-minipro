@@ -10,18 +10,19 @@ import 'moment/locale/ko';
 import moment from 'moment';
 // const todos = [{id: 1, message: }];
 
-const Lilist = () => {
-  const [state, setState] = useState([
-    { id: 1, message: '아침 루트', firsttime: '9:15am', lasttime: '9:16am' },
-    { id: 2, message: '밥먹기', firsttime: '0:00am', lasttime: '' },
-  ]);
-  console.log(state);
-  return state.map(todo => {
+const Lilist = ({ routines }) => {
+  // const [state, setState] = useState([
+  //   { id: 1, message: '아침 루트', firsttime: '9:15am', lasttime: '9:16am' },
+  //   { id: 2, message: '밥먹기', firsttime: '0:00am', lasttime: '' },
+  // ]);
+  // console.log(state);
+
+  return routines.map(routine => {
     return (
-      <li className="Routine-list">
-        {todo.message}
+      <li className="Routine-list" key={Math.random()}>
+        {routine.routine}
         <time>
-          {todo.firsttime} {todo.lasttime && '~'} {todo.lasttime}
+          {routine.startTime} {routine.endTime && '~'} {routine.day}
         </time>
         <button>
           <FiMoreHorizontal />
@@ -31,8 +32,12 @@ const Lilist = () => {
   });
 };
 
-const Routine = () => {
-  console.log(moment().format());
+const Routine = ({ routines, getRoutines }) => {
+  useEffect(() => {
+    getRoutines();
+  }, []);
+
+  console.log(routines);
 
   return (
     <div className="Routine">
@@ -42,9 +47,7 @@ const Routine = () => {
         </time>
         <h1>평온한 오후입니다.</h1>
       </div>
-      <ul className="section">
-        <Lilist />
-      </ul>
+      <ul className="section">{routines.length && <Lilist routines={routines} />}</ul>
       <div className="plus">
         <button>
           <BsPlus />
