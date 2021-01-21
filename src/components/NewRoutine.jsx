@@ -1,20 +1,7 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import './NewRoutine.scss';
 import 'antd/dist/antd.css';
-import {
-  Form,
-  Input,
-  Menu,
-  Dropdown,
-  Button,
-  Checkbox,
-  Switch,
-  Radio,
-  Select,
-  DatePicker,
-  TimePicker,
-} from 'antd';
-import moment from 'moment';
+import { Form, Input, Checkbox, Switch, Select, TimePicker } from 'antd';
 import { IoIosArrowRoundForward } from 'react-icons/io';
 import date from 'date-and-time';
 
@@ -23,9 +10,6 @@ const NewRoutine = ({ onRoutine }) => {
   const audio = useRef();
 
   const [alarm, setAlarm] = useState('');
-
-  let message = '1번 울리기';
-  const [state, setState] = useState(message);
 
   const format = 'HH:mm';
 
@@ -45,41 +29,26 @@ const NewRoutine = ({ onRoutine }) => {
     audio.current.play();
   };
 
-  const onSubmit = useCallback(
-    e => {
-      e.preventDefault();
-      const formdata = new FormData(form.current);
-      const routine = {};
-      for (let [key, value] of formdata.entries()) {
-        routine[key] = value;
+  const onFinish = useCallback(
+    values => {
+      for (const key in values) {
+        if (key === 'alarmSound' && values[key] === undefined) values[key] = 'none';
+        values[key] = values[key] === undefined ? false : values[key];
       }
-      console.log(routine);
-      onRoutine(routine);
+      const id = new Date().getTime();
+
+      let getValues = values;
+
+      getValues = {
+        id,
+        ...values,
+        startTime: date.format(getValues.startTime._d, 'hh:mm'),
+        endTime: date.format(getValues.endTime._d, 'hh:mm'),
+      };
+      onRoutine(getValues);
     },
     [onRoutine],
   );
-
-  function onChange(checked) {
-    console.log(`switch to ${checked}`);
-  }
-
-  const click = e => {
-    console.log(e.item.props.value);
-    setState(e.item.props.value);
-    console.log(state);
-  };
-
-  const onFinish = values => {
-    let getValues = values;
-
-    // const now = `${getValues.startTime._d.getHours()}:${getValues.startTime._d.getMinutes()}`;
-    getValues = {
-      ...values,
-      startTime: date.format(getValues.startTime._d, 'hh:mm'),
-      endTime: date.format(getValues.endTime._d, 'hh:mm'),
-    };
-    onRoutine(getValues);
-  };
 
   return (
     <div className="NewRoutine">
@@ -91,7 +60,7 @@ const NewRoutine = ({ onRoutine }) => {
           <Input placeholder="새 루틴을 추가해주세요" />
         </Form.Item>
         <Form.Item name="day">
-          <Checkbox.Group options={options} onChange={onChange} />
+          <Checkbox.Group options={options} />
         </Form.Item>
 
         <h2>시작 알림</h2>
@@ -99,7 +68,7 @@ const NewRoutine = ({ onRoutine }) => {
           <div className="toggle">
             <div className="active">활성화</div>
             <Form.Item name="alram">
-              <Switch defaultChecked onChange={onChange} />
+              <Switch />
             </Form.Item>
           </div>
         </div>
